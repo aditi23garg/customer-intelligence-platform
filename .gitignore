@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.env
+*.pkl
+*.joblib
+data/raw/
+data/full/
+*.csv
+!data/samples/*.csv
+mlruns/
+.DS_Store
