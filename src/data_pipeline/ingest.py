@@ -81,44 +81,43 @@ def download_cfpb_complaints(n_records: int = 5000):
         "Company response to consumer",
         "Consumer complaint narrative",
     ]
-
     collected = []
-    chunk_size = 10000
     total_read = 0
+    chunk_size = 10000
+    print("  Reading file (this may take a moment)...")
+    df = pd.read_csv(local_path, usecols=cols, chunksize=chunk_size,
+                      low_memory=False, on_bad_lines="skip")
 
-    print("  Reading in chunks (this may take a moment)...")
-
-    for chunk in pd.read_csv(local_path, usecols=cols, chunksize=chunk_size,
-                              low_memory=False, on_bad_lines="skip"):
-
+    for chunk in df:
         # Keep only rows with real narratives
         chunk = chunk[
-            chunk["Consumer complaint narrative"].notna() &
-            (chunk["Consumer complaint narrative"].str.strip() != "") &
-            (chunk["Consumer complaint narrative"].str.strip() != "N/A")
-        ]
+        chunk["Consumer complaint narrative"].notna() &
+        (chunk["Consumer complaint narrative"].str.strip() != "") &
+        (chunk["Consumer complaint narrative"].str.strip() != "N/A") &
+        (chunk["Consumer complaint narrative"].str.len() >= 20)
+    ]
+
 
         collected.append(chunk)
         total_read += len(chunk)
         print(f"  ...collected {total_read} rows with narratives so far", end="\r")
 
-        if total_read >= n_records * 3:   # collect 3x then sample, for variety
+        if total_read >= n_records * 3:
             break
 
     df = pd.concat(collected, ignore_index=True)
     print(f"\n  Total rows collected: {len(df)}")
 
     # Rename columns
-    df.columns = [
-        "complaint_id",
-        "product",
-        "issue",
-        "company",
-        "date_received",
-        "company_response",
-        "consumer_complaint_narrative",
-    ]
-
+    df = df.rename(columns={
+        "Complaint ID":                   "complaint_id",
+        "Product":                        "product",
+        "Issue":                          "issue",
+        "Company":                        "company",
+        "Date received":                  "date_received",
+        "Company response to consumer":   "company_response",
+        "Consumer complaint narrative":   "consumer_complaint_narrative",
+    })
     # Sample final n_records
     sample = df.sample(n=min(n_records, len(df)), random_state=42).reset_index(drop=True)
 
