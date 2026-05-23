@@ -1,12 +1,32 @@
+# Python
 venv/
 __pycache__/
 *.pyc
+*.pyo
+
+# Environment
 .env
-*.pkl
-*.joblib
+
+# Data — large files never in Git
 data/raw/
 data/full/
-*.csv
-!data/samples/*.csv
+data/models/
+data/plots/
+data/rag_index/
+data/artifacts/
+data/samples/bank_marketing_features.csv
+
+# Allow only these specific sample files
+!data/samples/bank_marketing_sample.csv
+!data/samples/cfpb_complaints_sample.csv
+
+# ML tracking
 mlruns/
+
+# Serialized models
+*.pkl
+*.joblib
+
+# OS
 .DS_Store
+Thumbs.db

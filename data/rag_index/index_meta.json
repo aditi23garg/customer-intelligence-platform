@@ -1,7 +1,0 @@
-{
-  "embedding_model": "all-MiniLM-L6-v2",
-  "chunk_size": 400,
-  "chunk_overlap": 50,
-  "total_chunks": 17293,
-  "index_version": "1.0"
-}
