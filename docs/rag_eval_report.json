@@ -1,0 +1,158 @@
+{
+  "total": 10,
+  "passed": 8,
+  "failed": 2,
+  "results": [
+    {
+      "id": "Q01",
+      "question": "What are the most common complaints about credit reporting?",
+      "passed": true,
+      "notes": "PASS \u2014 retrieved 5 IDs, topics matched: ['credit report', 'reporting', 'investigation']",
+      "evidence_ids": [
+        "11746187",
+        "11746859",
+        "15699443",
+        "17679385",
+        "8197451"
+      ],
+      "top_score": 0.6963,
+      "latency_ms": 4332.36,
+      "answer": "The most common complaint regarding credit reporting among the provided records is the \"Improper use of your report\" (8197451, 17679385, 15699443). Consumers reported issues like a credit report negat..."
+    },
+    {
+      "id": "Q02",
+      "question": "What issues do customers face with mortgage payments?",
+      "passed": true,
+      "notes": "PASS \u2014 retrieved 5 IDs, topics matched: ['mortgage', 'payment']",
+      "evidence_ids": [
+        "6320272",
+        "3111056",
+        "7415758",
+        "2015835",
+        "12411588"
+      ],
+      "top_score": 0.5497,
+      "latency_ms": 5236.42,
+      "answer": "Customers experience issues with mortgage companies raising their payment amounts and refusing to keep them the same (Complaint ID: 3111056). They also report extremely poor customer service from comp..."
+    },
+    {
+      "id": "Q03",
+      "question": "How do companies typically respond to credit card complaints?",
+      "passed": true,
+      "notes": "PASS \u2014 retrieved 5 IDs, topics matched: ['credit card', 'response']",
+      "evidence_ids": [
+        "14530011",
+        "15699443",
+        "17679385",
+        "8356908",
+        "1709436"
+      ],
+      "top_score": 0.6762,
+      "latency_ms": 10175.76,
+      "answer": "From the records, company responses to credit card-related complaints vary. American Express indicated they would investigate disputed credit card debt through their fraud department but proceeded wit..."
+    },
+    {
+      "id": "Q04",
+      "question": "What problems do customers report about debt collection practices?",
+      "passed": true,
+      "notes": "PASS \u2014 retrieved 5 IDs, topics matched: ['debt', 'collection']",
+      "evidence_ids": [
+        "4397726",
+        "13375509",
+        "16753449",
+        "9951934",
+        "18864170"
+      ],
+      "top_score": 0.6545,
+      "latency_ms": 6935.61,
+      "answer": "Customers report problems with debt collection practices, including not receiving prior written notice before collections or collection letters (18864170, 4397726). Issues also include a failure to va..."
+    },
+    {
+      "id": "Q05",
+      "question": "What are common issues with student loan servicing?",
+      "passed": true,
+      "notes": "PASS \u2014 retrieved 5 IDs, topics matched: ['student loan', 'servicing']",
+      "evidence_ids": [
+        "3368888",
+        "7748408",
+        "3002937",
+        "12411588",
+        "9802571"
+      ],
+      "top_score": 0.6156,
+      "latency_ms": 7762.87,
+      "answer": "Common issues with student loan servicing include inadequate communication from lenders or servicers (Complaint ID: 7748408) and their failure to help borrowers understand available loan options (Comp..."
+    },
+    {
+      "id": "Q06",
+      "question": "What bank account problems do customers complain about most?",
+      "passed": true,
+      "notes": "PASS \u2014 retrieved 4 IDs, topics matched: ['bank account']",
+      "evidence_ids": [
+        "16132118",
+        "1587208",
+        "6377087",
+        "4903046"
+      ],
+      "top_score": 0.6434,
+      "latency_ms": 7826.89,
+      "answer": "Customers complain about problems related to account opening, closing, or management (ID 1587208), which includes issues like non-delivery of account items and unreplaced service fees. Additionally, c..."
+    },
+    {
+      "id": "Q07",
+      "question": "How long does it typically take companies to resolve complaints?",
+      "passed": false,
+      "notes": "FAIL \u2014 none of expected topics ['response', 'closed', 'timely'] found in answer",
+      "evidence_ids": [
+        "7941874",
+        "8672667",
+        "15269387",
+        "3578639",
+        "4160936"
+      ],
+      "top_score": 0.6135,
+      "latency_ms": 441.25,
+      "answer": "LLM generation failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. ..."
+    },
+    {
+      "id": "Q08",
+      "question": "What complaints exist about payday loans or personal loans?",
+      "passed": true,
+      "notes": "PASS \u2014 retrieved 4 IDs, topics matched: ['loan']",
+      "evidence_ids": [
+        "2572274",
+        "14648548",
+        "12411588",
+        "3136534"
+      ],
+      "top_score": 0.6076,
+      "latency_ms": 5673.17,
+      "answer": "One complaint exists regarding a payday loan. Complaint ID 2572274 details an incorrect payday loan appearing on the complainant's report from 2013. The complainant attempted to contact the company bu..."
+    },
+    {
+      "id": "Q09",
+      "question": "What issues do customers have with money transfers or remittances?",
+      "passed": false,
+      "notes": "FAIL \u2014 none of expected topics ['transfer', 'money', 'transaction'] found in answer",
+      "evidence_ids": [
+        "1541113",
+        "17241431",
+        "10795128",
+        "4903046",
+        "6377087"
+      ],
+      "top_score": 0.5106,
+      "latency_ms": 523.01,
+      "answer": "LLM generation failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. ..."
+    },
+    {
+      "id": "Q10",
+      "question": "What is the weather like on Mars?",
+      "passed": true,
+      "notes": "PASS \u2014 correctly refused/weak retrieval for off-topic question",
+      "evidence_ids": [],
+      "top_score": 0.0,
+      "latency_ms": 51.22
+    }
+  ]
+}
