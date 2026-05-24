@@ -1,0 +1,22 @@
+# render.yaml — Deploy Streamlit frontend on Render.com (free tier)
+# Steps:
+#   1. Push this file to GitHub
+#   2. Go to https://dashboard.render.com → New → Blueprint
+#   3. Connect your GitHub repo — Render auto-reads this file
+#   4. Add GEMINI_API_KEY in Render Environment dashboard
+
+services:
+  - type: web
+    name: customer-intelligence-frontend
+    runtime: docker
+    dockerfilePath: ./Dockerfile.streamlit
+    plan: free                     # upgrade to Starter ($7/mo) for no sleep
+    region: singapore              # closest free region to your Azure southeastasia
+    branch: main
+    autoDeploy: true               # redeploy on every push to main
+
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false                # set value manually in Render dashboard (secret)
+
+    healthCheckPath: /_stcore/health

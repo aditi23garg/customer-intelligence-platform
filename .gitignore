@@ -31,6 +31,9 @@ mlruns/
 .DS_Store
 Thumbs.db
 
+# Streamlit secrets (NEVER commit real keys)
+.streamlit/secrets.toml
+
 data/samples/complaints.csv
 data/samples/bank-full.csv
 

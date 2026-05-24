@@ -1,0 +1,125 @@
+name: Deploy Streamlit Frontend → Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/streamlit_app.py"
+      - "Dockerfile.streamlit"
+      - ".streamlit/**"
+      - "requirements-frontend.txt"
+  workflow_dispatch:   # ← also lets you trigger manually from GitHub UI
+
+env:
+  # ── Hardcoded for customer-intel-rg2 ────────────────────────────────────────
+  RESOURCE_GROUP:  customer-intel-rg2
+  CONTAINER_APP:   customer-intel-frontend
+  LOCATION:        southeastasia
+  IMAGE_NAME:      customer-intel-frontend
+
+  # ── From GitHub Secrets ──────────────────────────────────────────────────────
+  REGISTRY: ${{ secrets.AZURE_REGISTRY_LOGIN_SERVER }}
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-and-push:
+    name: 🐳 Build & Push to ACR
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.sha.outputs.short }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get short SHA
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.streamlit
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.short }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy:
+    name: 🚀 Deploy to Azure Container Apps
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install containerapp CLI extension
+        run: az extension add --name containerapp --upgrade -y
+
+      - name: Create Container App Environment (skip if exists)
+        run: |
+          az containerapp env show \
+            --name customer-intel-env \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query "name" -o tsv 2>/dev/null || \
+          az containerapp env create \
+            --name customer-intel-env \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --location ${{ env.LOCATION }}
+
+      - name: Deploy / Update Container App
+        run: |
+          EXISTS=$(az containerapp show \
+            --name ${{ env.CONTAINER_APP }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query "name" -o tsv 2>/dev/null || echo "")
+
+          if [ -z "$EXISTS" ]; then
+            echo "🆕 Creating Container App: ${{ env.CONTAINER_APP }}"
+            az containerapp create \
+              --name ${{ env.CONTAINER_APP }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --environment customer-intel-env \
+              --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+              --target-port 8501 \
+              --ingress external \
+              --min-replicas 0 \
+              --max-replicas 2 \
+              --cpu 0.5 \
+              --memory 1.0Gi \
+              --registry-server ${{ env.REGISTRY }} \
+              --registry-username ${{ secrets.AZURE_REGISTRY_USERNAME }} \
+              --registry-password ${{ secrets.AZURE_REGISTRY_PASSWORD }} \
+              --secrets "gemini-key=${{ secrets.GEMINI_API_KEY }}" \
+              --env-vars "GEMINI_API_KEY=secretref:gemini-key"
+          else
+            echo "♻️  Updating existing Container App: ${{ env.CONTAINER_APP }}"
+            az containerapp update \
+              --name ${{ env.CONTAINER_APP }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          fi
+
+      - name: ✅ Print public URL
+        run: |
+          URL=$(az containerapp show \
+            --name ${{ env.CONTAINER_APP }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          echo ""
+          echo "================================================="
+          echo "  ✅ FRONTEND LIVE AT: https://$URL"
+          echo "================================================="
