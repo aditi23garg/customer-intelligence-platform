@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  ml-service:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - ./data/artifacts:/app/data/artifacts
+      - ./data/models:/app/data/models

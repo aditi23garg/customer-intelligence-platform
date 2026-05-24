@@ -1,0 +1,20 @@
+{
+  "gate_passed": true,
+  "prauc_diff": 0.0401,
+  "f1_diff": 0.0393,
+  "gate_prauc_margin": 0.03,
+  "gate_f1_drop_max": 0.02,
+  "promoted_model": "improved_xgboost",
+  "baseline_metrics": {
+    "roc_auc": 0.8749,
+    "pr_auc": 0.8511,
+    "f1": 0.8118,
+    "threshold": 0.5
+  },
+  "improved_metrics": {
+    "roc_auc": 0.9215,
+    "pr_auc": 0.8912,
+    "f1": 0.8511,
+    "threshold": 0.5
+  }
+}

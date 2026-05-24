@@ -33,3 +33,7 @@ Thumbs.db
 
 data/samples/complaints.csv
 data/samples/bank-full.csv
+
+# Allow artifacts for deployment
+!data/artifacts/
+!data/models/
