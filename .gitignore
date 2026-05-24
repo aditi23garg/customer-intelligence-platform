@@ -30,3 +30,6 @@ mlruns/
 # OS
 .DS_Store
 Thumbs.db
+
+data/samples/complaints.csv
+data/samples/bank-full.csv
