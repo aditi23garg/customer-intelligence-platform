@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+.env
+data/samples/complaints.csv
+data/samples/bank-full.csv
+data/raw/
+mlruns/
+*.tar.gz
+docs/
+tests/
+monitoring/
+.github/

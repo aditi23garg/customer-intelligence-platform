@@ -23,7 +23,7 @@ from src.serving.schemas import PredictRequest, PredictResponse, HealthResponse,
 from pydantic import BaseModel
 from src.data_pipeline.features import build_features, load_encoders
 from src.rag.answer import generate_answer, load_index, load_embedding_model
-
+from src.rag.answer import app as rag_app
 # ── Paths ─────────────────────────────────────────────────────────────────────
 ARTIFACTS = ROOT / "data" / "artifacts"
 MODELS    = ROOT / "data" / "models"
@@ -74,7 +74,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-
+app.mount("/rag", rag_app)
 # ── /health ───────────────────────────────────────────────────────────────────
 @app.get("/health", response_model=HealthResponse)
 def health():
@@ -237,7 +237,27 @@ def customer_intel(request: CustomerIntelRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+# ── /ask-complaints ───────────────────────────────────────────────────────────
+class AskRequest(BaseModel):
+    question:      str
+    product:       Optional[str] = None
+    company:       Optional[str] = None
+    date_received: Optional[str] = None
+    issue:         Optional[str] = None
 
+@app.post("/ask-complaints")
+def ask_complaints(request: AskRequest):
+    try:
+        filters = {
+            "product":       request.product,
+            "company":       request.company,
+            "date_received": request.date_received,
+        }
+        filters = {k: v for k, v in filters.items() if v}
+        result  = generate_answer(request.question, filters or None)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 # ── Run directly ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
