@@ -1,0 +1,77 @@
+{
+  "total_questions": 8,
+  "hit_count": 7,
+  "hit_rate": 0.875,
+  "refusal_count": 1,
+  "refusal_rate": 0.125,
+  "avg_latency_ms": 3982.18,
+  "max_latency_ms": 5980.45,
+  "avg_top_score": 0.6418,
+  "empty_retrievals": 1,
+  "results": [
+    {
+      "question": "What are common credit reporting complaints?",
+      "hit": true,
+      "refused": false,
+      "top_score": 0.7087,
+      "retrieval_count": 5,
+      "latency_ms": 4834.18
+    },
+    {
+      "question": "How do banks respond to mortgage complaints?",
+      "hit": true,
+      "refused": false,
+      "top_score": 0.6677,
+      "retrieval_count": 5,
+      "latency_ms": 5229.67
+    },
+    {
+      "question": "What issues exist with debt collection?",
+      "hit": true,
+      "refused": false,
+      "top_score": 0.6337,
+      "retrieval_count": 5,
+      "latency_ms": 5648.0
+    },
+    {
+      "question": "Tell me about credit card billing disputes.",
+      "hit": true,
+      "refused": false,
+      "top_score": 0.6858,
+      "retrieval_count": 5,
+      "latency_ms": 5112.59
+    },
+    {
+      "question": "What complaints exist about loan modifications?",
+      "hit": true,
+      "refused": false,
+      "top_score": 0.6272,
+      "retrieval_count": 5,
+      "latency_ms": 3009.28
+    },
+    {
+      "question": "How are student loan complaints handled?",
+      "hit": true,
+      "refused": false,
+      "top_score": 0.7321,
+      "retrieval_count": 5,
+      "latency_ms": 5980.45
+    },
+    {
+      "question": "What is the weather on Jupiter?",
+      "hit": false,
+      "refused": true,
+      "top_score": 0.0,
+      "retrieval_count": 0,
+      "latency_ms": 31.78
+    },
+    {
+      "question": "Tell me a joke about finance.",
+      "hit": true,
+      "refused": false,
+      "top_score": 0.4376,
+      "retrieval_count": 5,
+      "latency_ms": 2011.5
+    }
+  ]
+}

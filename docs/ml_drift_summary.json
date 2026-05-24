@@ -1,0 +1,29 @@
+{
+  "dataset_drift_detected": true,
+  "drifted_columns": 4,
+  "total_columns": 7,
+  "drift_share": 0.5714,
+  "recommendation": "RETRAIN",
+  "drifted_features": [
+    {
+      "column": "age",
+      "statistic": 0,
+      "p_value": 0
+    },
+    {
+      "column": "balance",
+      "statistic": 0,
+      "p_value": 0
+    },
+    {
+      "column": "campaign",
+      "statistic": 0,
+      "p_value": 0
+    },
+    {
+      "column": "duration",
+      "statistic": 0,
+      "p_value": 0
+    }
+  ]
+}
