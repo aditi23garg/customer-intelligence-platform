@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #1e2330;
+    --border2: #2a3045;
+    --text: #e8eaf0;
+    --text2: #8892a4;
+    --text3: #4a5468;
+    --accent: #4f8ef7;
+    --accent2: #1a3a6e;
+    --green: #22c87a;
+    --green2: #0d3d25;
+    --amber: #f5a623;
+    --amber2: #3d2800;
+    --red: #f25555;
+    --red2: #3d1212;
+    --purple: #a78bfa;
+    --purple2: #2d1f5e;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .logo-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .nav-section {
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 400;
+    transition: all 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent2); color: var(--accent); font-weight: 500; }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .status-bar {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    display: inline-block;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .status-text { font-size: 11px; color: var(--text2); font-family: 'DM Mono', monospace; }
+
+  /* Main content */
+  .main { background: var(--bg); overflow-y: auto; }
+
+  .topbar {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+
+  .page-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .page-sub { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  .badge {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .badge-blue { background: var(--accent2); color: var(--accent); }
+  .badge-green { background: var(--green2); color: var(--green); }
+  .badge-amber { background: var(--amber2); color: var(--amber); }
+  .badge-red { background: var(--red2); color: var(--red); }
+
+  /* Panels */
+  .content { padding: 28px 32px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-body { padding: 20px; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  /* Stats */
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+
+  .stat-label { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .stat-value { font-size: 26px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; }
+  .stat-delta { font-size: 11px; margin-top: 6px; }
+  .delta-up { color: var(--green); }
+  .delta-down { color: var(--red); }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-label { font-size: 11px; font-weight: 500; color: var(--text2); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .form-input, .form-select {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+  .form-select option { background: var(--surface); }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #3d7ae5; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+
+  /* Result card */
+  .result-card {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .result-band {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .band-HIGH { background: var(--green2); border: 1px solid var(--green); }
+  .band-HIGH .band-label { color: var(--green); }
+  .band-MEDIUM { background: var(--amber2); border: 1px solid var(--amber); }
+  .band-MEDIUM .band-label { color: var(--amber); }
+  .band-LOW { background: var(--red2); border: 1px solid var(--red); }
+  .band-LOW .band-label { color: var(--red); }
+
+  .band-label { font-size: 22px; font-weight: 600; }
+  .band-sub { font-size: 12px; color: var(--text2); }
+
+  .prob-bar-wrap { margin: 16px 0; }
+  .prob-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+  .prob-bar { height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+  .prob-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Chat */
+  .chat-messages {
+    height: 340px;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .msg {
+    display: flex;
+    gap: 12px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .msg-user .msg-avatar { background: var(--accent2); color: var(--accent); }
+  .msg-bot .msg-avatar { background: var(--purple2); color: var(--purple); }
+
+  .msg-content { flex: 1; }
+  .msg-name { font-size: 11px; color: var(--text3); margin-bottom: 4px; font-family: 'DM Mono', monospace; }
+  .msg-text {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .msg-user .msg-text { background: var(--accent2); border-color: var(--accent2); }
+
+  .evidence-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .evidence-tag {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    color: var(--text3);
+  }
+
+  .sufficiency-note {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    padding: 4px 10px;
+    background: var(--surface);
+    border-left: 2px solid var(--border2);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .chat-input-row {
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 9px 14px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+  }
+
+  .chat-input:focus { border-color: var(--accent); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .tab {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    font-weight: 400;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+  /* Page sections */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .section-gap { margin-bottom: 20px; }
+
+  /* Loading */
+  .loading { display: inline-flex; gap: 4px; align-items: center; }
+  .loading span {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 1s infinite;
+  }
+  .loading span:nth-child(2) { animation-delay: 0.15s; }
+  .loading span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* URL config */
+  .url-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .url-label { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text3); white-space: nowrap; }
+  .url-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    padding: 7px 12px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    outline: none;
+  }
+  .url-input:focus { border-color: var(--accent); }
+
+  .kv-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-key { color: var(--text2); }
+  .kv-val { color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  .scroll-x { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">CI</div>
+      <div class="logo-text">Customer Intelligence</div>
+      <div class="logo-sub">Meridian Financial</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Analytics</div>
+      <button class="nav-item active" onclick="showPage('dashboard')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('predict')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        ML Predictor
+      </button>
+      <button class="nav-item" onclick="showPage('complaints')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h12v8a1 1 0 01-1 1H3a1 1 0 01-1-1V3z"/><path d="M2 3l6 5 6-5"/></svg>
+        Complaint Intel
+      </button>
+      <button class="nav-item" onclick="showPage('customerintel')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        Customer Intel
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">System</div>
+      <button class="nav-item" onclick="showPage('settings')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4"/></svg>
+        Settings
+      </button>
+    </div>
+
+    <div class="status-bar">
+      <div><span class="status-dot"></span><span class="status-text">api online</span></div>
+      <div style="margin-top:6px; font-size:11px; color:var(--text3); font-family:'DM Mono',monospace;">v3 · xgboost · faiss</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Dashboard -->
+    <div id="page-dashboard" class="page active">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Overview</div>
+          <div class="page-sub">customer intelligence platform · live</div>
+        </div>
+        <span class="badge badge-green">● All systems operational</span>
+      </div>
+      <div class="content">
+        <div class="grid-4 section-gap">
+          <div class="stat-card">
+            <div class="stat-label">Model</div>
+            <div class="stat-value" style="font-size:16px;margin-top:4px;">XGBoost</div>
+            <div class="stat-delta delta-up">↑ promoted via gate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">ROC-AUC</div>
+            <div class="stat-value">0.92</div>
+            <div class="stat-delta delta-up">↑ +0.05 vs baseline</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">PR-AUC</div>
+            <div class="stat-value">0.89</div>
+            <div class="stat-delta delta-up">↑ +0.04 vs baseline</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">RAG Hit Rate</div>
+            <div class="stat-value">87.5%</div>
+            <div class="stat-delta delta-up">7/8 eval questions</div>
+          </div>
+        </div>
+
+        <div class="grid-2 section-gap">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">ML Model Performance</div>
+              <span class="badge badge-blue">v1.0</span>
+            </div>
+            <div class="panel-body">
+              <div class="kv-row"><span class="kv-key">Algorithm</span><span class="kv-val">XGBoost Classifier</span></div>
+              <div class="kv-row"><span class="kv-key">Training samples</span><span class="kv-val">4,000</span></div>
+              <div class="kv-row"><span class="kv-key">Test samples</span><span class="kv-val">1,000</span></div>
+              <div class="kv-row"><span class="kv-key">F1 Score</span><span class="kv-val">0.8511</span></div>
+              <div class="kv-row"><span class="kv-key">Threshold</span><span class="kv-val">0.5</span></div>
+              <div class="kv-row"><span class="kv-key">Promotion gate</span><span class="kv-val" style="color:var(--green)">PASSED ✓</span></div>
+              <div class="kv-row"><span class="kv-key">Drift status</span><span class="kv-val" style="color:var(--amber)">RETRAIN recommended</span></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">RAG Service Status</div>
+              <span class="badge badge-green">live</span>
+            </div>
+            <div class="panel-body">
+              <div class="kv-row"><span class="kv-key">Embedding model</span><span class="kv-val">all-MiniLM-L6-v2</span></div>
+              <div class="kv-row"><span class="kv-key">Vector store</span><span class="kv-val">FAISS (flat IP)</span></div>
+              <div class="kv-row"><span class="kv-key">Complaint records</span><span class="kv-val">5,000</span></div>
+              <div class="kv-row"><span class="kv-key">Total chunks</span><span class="kv-val">~18,000</span></div>
+              <div class="kv-row"><span class="kv-key">LLM</span><span class="kv-val">gemini-2.5-flash</span></div>
+              <div class="kv-row"><span class="kv-key">Similarity threshold</span><span class="kv-val">0.30</span></div>
+              <div class="kv-row"><span class="kv-key">Avg top score</span><span class="kv-val">0.6418</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Drift Detection Report</div>
+            <span class="badge badge-amber">4/7 columns drifted</span>
+          </div>
+          <div class="panel-body">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+              <div>
+                <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;">AGE</div>
+                <div style="font-size:13px;color:var(--red);">DRIFTED</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px;">41.2 → 48.7</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;">BALANCE</div>
+                <div style="font-size:13px;color:var(--red);">DRIFTED</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px;">1548 → 431</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;">CAMPAIGN</div>
+                <div style="font-size:13px;color:var(--red);">DRIFTED</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px;">2.5 → 4.5</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;">DURATION</div>
+                <div style="font-size:13px;color:var(--red);">DRIFTED</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px;">384 → 268</div>
+              </div>
+            </div>
+            <div style="margin-top:16px;padding:12px;background:var(--amber2);border:1px solid var(--amber);border-radius:var(--radius-sm);font-size:12px;color:var(--amber);font-family:'DM Mono',monospace;">
+              ⚠ Recommendation: RETRAIN — 57.14% of features drifted beyond threshold
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ML Predictor -->
+    <div id="page-predict" class="page">
+      <div class="topbar">
+        <div>
+          <div class="page-title">ML Predictor</div>
+          <div class="page-sub">POST /predict · XGBoost v1.0</div>
+        </div>
+        <span class="badge badge-blue">improved_xgboost</span>
+      </div>
+      <div class="content">
+        <div class="grid-2" style="gap:24px;align-items:start;">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Customer Features</div>
+            </div>
+            <div class="panel-body">
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="form-group">
+                  <label class="form-label">Age</label>
+                  <input type="number" id="f-age" class="form-input" value="35" min="18" max="95">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Balance (€)</label>
+                  <input type="number" id="f-balance" class="form-input" value="1500">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Job</label>
+                  <select id="f-job" class="form-select">
+                    <option>management</option><option>technician</option><option>blue-collar</option>
+                    <option>admin.</option><option>services</option><option>retired</option>
+                    <option>entrepreneur</option><option>self-employed</option><option>student</option>
+                    <option>housemaid</option><option>unemployed</option><option>unknown</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Marital</label>
+                  <select id="f-marital" class="form-select">
+                    <option>married</option><option>single</option><option>divorced</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Education</label>
+                  <select id="f-education" class="form-select">
+                    <option>tertiary</option><option>secondary</option><option>primary</option><option>unknown</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Contact</label>
+                  <select id="f-contact" class="form-select">
+                    <option>cellular</option><option>telephone</option><option>unknown</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Housing Loan</label>
+                  <select id="f-housing" class="form-select"><option>yes</option><option>no</option></select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Personal Loan</label>
+                  <select id="f-loan" class="form-select"><option>no</option><option>yes</option></select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Duration (sec)</label>
+                  <input type="number" id="f-duration" class="form-input" value="200" min="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Campaign</label>
+                  <input type="number" id="f-campaign" class="form-input" value="2" min="1">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Pdays</label>
+                  <input type="number" id="f-pdays" class="form-input" value="-1">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Previous</label>
+                  <input type="number" id="f-previous" class="form-input" value="0" min="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Month</label>
+                  <select id="f-month" class="form-select">
+                    <option>may</option><option>jun</option><option>jul</option><option>aug</option>
+                    <option>oct</option><option>nov</option><option>dec</option><option>jan</option>
+                    <option>feb</option><option>mar</option><option>apr</option><option>sep</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Day</label>
+                  <input type="number" id="f-day" class="form-input" value="15" min="1" max="31">
+                </div>
+              </div>
+              <div style="margin-top:16px;display:flex;gap:10px;">
+                <button class="btn btn-primary" onclick="runPredict()">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 13,8 5,13"/></svg>
+                  Run Prediction
+                </button>
+                <button class="btn btn-ghost" onclick="resetForm()">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div id="predict-result" class="panel" style="display:none;">
+              <div class="panel-header">
+                <div class="panel-title">Prediction Result</div>
+                <span id="result-badge" class="badge"></span>
+              </div>
+              <div class="panel-body">
+                <div id="result-band" class="result-band">
+                  <div>
+                    <div id="result-decision" class="band-label"></div>
+                    <div class="band-sub">subscription prediction</div>
+                  </div>
+                </div>
+                <div class="prob-bar-wrap">
+                  <div class="prob-bar-label">
+                    <span>Subscription probability</span>
+                    <span id="prob-pct"></span>
+                  </div>
+                  <div class="prob-bar">
+                    <div id="prob-fill" class="prob-fill" style="width:0%"></div>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div id="result-details"></div>
+              </div>
+            </div>
+            <div id="predict-loading" style="display:none;padding:40px;text-align:center;">
+              <div class="loading"><span></span><span></span><span></span></div>
+              <div style="margin-top:12px;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">calling /predict...</div>
+            </div>
+            <div id="predict-placeholder" class="panel">
+              <div class="panel-body" style="text-align:center;padding:40px;">
+                <div style="font-size:32px;margin-bottom:12px;opacity:0.3;">◈</div>
+                <div style="font-size:13px;color:var(--text3);">Fill in customer features and run prediction</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complaint Intel -->
+    <div id="page-complaints" class="page">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Complaint Intelligence</div>
+          <div class="page-sub">POST /ask-complaints · FAISS + Gemini</div>
+        </div>
+        <span class="badge badge-purple" style="background:var(--purple2);color:var(--purple);">RAG · grounded</span>
+      </div>
+      <div class="content">
+        <div class="grid-2" style="gap:24px;align-items:start;">
+          <div class="panel" style="overflow:hidden;">
+            <div class="panel-header">
+              <div class="panel-title">Complaint Q&A</div>
+            </div>
+            <div id="chat-messages" class="chat-messages">
+              <div class="msg msg-bot">
+                <div class="msg-avatar">AI</div>
+                <div class="msg-content">
+                  <div class="msg-name">complaint analyst · gemini</div>
+                  <div class="msg-text">Ask me anything about customer complaints. I'll retrieve relevant records and cite evidence IDs in my response.</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <input type="text" id="chat-input" class="chat-input" placeholder="What are common credit card complaints?" onkeydown="if(event.key==='Enter')sendQuestion()">
+              <button class="btn btn-primary" onclick="sendQuestion()">Send</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel section-gap">
+              <div class="panel-header"><div class="panel-title">Quick Questions</div></div>
+              <div class="panel-body" style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-ghost" style="text-align:left;justify-content:flex-start;font-size:12px;" onclick="setQ('What are the most common complaints about credit reporting?')">Credit reporting issues</button>
+                <button class="btn btn-ghost" style="text-align:left;justify-content:flex-start;font-size:12px;" onclick="setQ('How do companies respond to mortgage complaints?')">Mortgage complaint responses</button>
+                <button class="btn btn-ghost" style="text-align:left;justify-content:flex-start;font-size:12px;" onclick="setQ('What problems exist with debt collection practices?')">Debt collection problems</button>
+                <button class="btn btn-ghost" style="text-align:left;justify-content:flex-start;font-size:12px;" onclick="setQ('What are common student loan servicing issues?')">Student loan issues</button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Filters (optional)</div></div>
+              <div class="panel-body" style="display:flex;flex-direction:column;gap:12px;">
+                <div class="form-group">
+                  <label class="form-label">Product</label>
+                  <input type="text" id="filter-product" class="form-input" placeholder="e.g. Credit card">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Company</label>
+                  <input type="text" id="filter-company" class="form-input" placeholder="e.g. TRANSUNION">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Intel -->
+    <div id="page-customerintel" class="page">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Customer Intel</div>
+          <div class="page-sub">POST /customer-intel · ML + RAG combined</div>
+        </div>
+        <span class="badge badge-blue">unified endpoint</span>
+      </div>
+      <div class="content">
+        <div class="grid-2" style="gap:24px;align-items:start;">
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Customer + Segment Filter</div></div>
+            <div class="panel-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+                <div class="form-group">
+                  <label class="form-label">Age</label>
+                  <input type="number" id="ci-age" class="form-input" value="42">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Balance (€)</label>
+                  <input type="number" id="ci-balance" class="form-input" value="2000">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Job</label>
+                  <select id="ci-job" class="form-select">
+                    <option>management</option><option>technician</option><option>blue-collar</option><option>admin.</option><option>services</option><option>retired</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Education</label>
+                  <select id="ci-education" class="form-select">
+                    <option>tertiary</option><option>secondary</option><option>primary</option>
+                  </select>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div style="margin-bottom:12px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;">Complaint Segment Filter</div>
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Product</label>
+                <input type="text" id="ci-product" class="form-input" placeholder="e.g. Credit card">
+              </div>
+              <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">Issue</label>
+                <input type="text" id="ci-issue" class="form-input" placeholder="e.g. Billing dispute">
+              </div>
+              <button class="btn btn-primary" onclick="runCustomerIntel()">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 13,8 5,13"/></svg>
+                Analyze Customer
+              </button>
+            </div>
+          </div>
+
+          <div id="ci-result" style="display:none;">
+            <div class="panel section-gap">
+              <div class="panel-header">
+                <div class="panel-title">Conversion Band</div>
+                <span id="ci-badge" class="badge"></span>
+              </div>
+              <div class="panel-body">
+                <div id="ci-band" class="result-band"></div>
+                <div class="prob-bar-wrap">
+                  <div class="prob-bar-label"><span>Subscription probability</span><span id="ci-prob-pct"></span></div>
+                  <div class="prob-bar"><div id="ci-prob-fill" class="prob-fill" style="width:0%"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Complaint Themes for Segment</div></div>
+              <div class="panel-body">
+                <div id="ci-themes" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+                <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px;">Evidence IDs</div>
+                <div id="ci-evidence" class="evidence-tags"></div>
+                <div id="ci-answer" class="sufficiency-note" style="margin-top:12px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="ci-loading" style="display:none;padding:40px;text-align:center;">
+            <div class="loading"><span></span><span></span><span></span></div>
+            <div style="margin-top:12px;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">calling /customer-intel...</div>
+          </div>
+
+          <div id="ci-placeholder" class="panel">
+            <div class="panel-body" style="text-align:center;padding:40px;">
+              <div style="font-size:32px;margin-bottom:12px;opacity:0.3;">◈</div>
+              <div style="font-size:13px;color:var(--text3);">Combined ML + RAG analysis per customer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div id="page-settings" class="page">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Settings</div>
+          <div class="page-sub">API configuration</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="panel" style="max-width:600px;">
+          <div class="panel-header"><div class="panel-title">API Endpoint</div></div>
+          <div class="url-bar">
+            <span class="url-label">BASE URL</span>
+            <input type="text" id="api-url" class="url-input" value="https://customer-intel-ml.wonderfulriver-676a1274.southeastasia.azurecontainerapps.io">
+          </div>
+          <div class="panel-body">
+            <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em;">Available Endpoints</div>
+            <div class="kv-row"><span class="kv-key">GET /health</span><span class="kv-val badge badge-green">active</span></div>
+            <div class="kv-row"><span class="kv-key">POST /predict</span><span class="kv-val badge badge-green">active</span></div>
+            <div class="kv-row"><span class="kv-key">POST /batch-score</span><span class="kv-val badge badge-green">active</span></div>
+            <div class="kv-row"><span class="kv-key">POST /ask-complaints</span><span class="kv-val badge badge-green">active</span></div>
+            <div class="kv-row"><span class="kv-key">POST /customer-intel</span><span class="kv-val badge badge-green">active</span></div>
+            <div class="kv-row"><span class="kv-key">GET /metrics</span><span class="kv-val badge badge-blue">planned</span></div>
+            <div style="margin-top:16px;">
+              <button class="btn btn-primary" onclick="testHealth()">Test Connection</button>
+              <span id="health-result" style="margin-left:12px;font-size:12px;font-family:'DM Mono',monospace;color:var(--text3);"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function getBaseUrl() {
+  return (document.getElementById('api-url') ? document.getElementById('api-url').value : 'https://customer-intel-ml.wonderfulriver-676a1274.southeastasia.azurecontainerapps.io').replace(/\/$/, '');
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+async function runPredict() {
+  const payload = {
+    age: parseInt(document.getElementById('f-age').value),
+    job: document.getElementById('f-job').value,
+    marital: document.getElementById('f-marital').value,
+    education: document.getElementById('f-education').value,
+    default: 'no',
+    balance: parseInt(document.getElementById('f-balance').value),
+    housing: document.getElementById('f-housing').value,
+    loan: document.getElementById('f-loan').value,
+    contact: document.getElementById('f-contact').value,
+    day: parseInt(document.getElementById('f-day').value),
+    month: document.getElementById('f-month').value,
+    duration: parseInt(document.getElementById('f-duration').value),
+    campaign: parseInt(document.getElementById('f-campaign').value),
+    pdays: parseInt(document.getElementById('f-pdays').value),
+    previous: parseInt(document.getElementById('f-previous').value),
+    poutcome: 'unknown'
+  };
+
+  document.getElementById('predict-placeholder').style.display = 'none';
+  document.getElementById('predict-result').style.display = 'none';
+  document.getElementById('predict-loading').style.display = 'block';
+
+  try {
+    const res = await fetch(getBaseUrl() + '/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    showPredictResult(data);
+  } catch(e) {
+    document.getElementById('predict-loading').style.display = 'none';
+    document.getElementById('predict-placeholder').style.display = 'block';
+    alert('Error: ' + e.message);
+  }
+}
+
+function showPredictResult(data) {
+  document.getElementById('predict-loading').style.display = 'none';
+  const resultEl = document.getElementById('predict-result');
+  resultEl.style.display = 'block';
+
+  const prob = data.probability;
+  const pct = Math.round(prob * 100);
+  const willSub = data.prediction === 1;
+
+  document.getElementById('result-decision').textContent = willSub ? 'WILL SUBSCRIBE' : 'WILL NOT SUBSCRIBE';
+  document.getElementById('result-band').className = 'result-band ' + (willSub ? 'band-HIGH' : 'band-LOW');
+
+  const badge = document.getElementById('result-badge');
+  badge.textContent = willSub ? 'HIGH CONVERSION' : 'LOW CONVERSION';
+  badge.className = 'badge ' + (willSub ? 'badge-green' : 'badge-red');
+
+  document.getElementById('prob-pct').textContent = pct + '%';
+  const fill = document.getElementById('prob-fill');
+  fill.style.width = '0%';
+  fill.style.background = willSub ? 'var(--green)' : 'var(--red)';
+  setTimeout(() => { fill.style.width = pct + '%'; }, 50);
+
+  document.getElementById('result-details').innerHTML = `
+    <div class="kv-row"><span class="kv-key">Probability</span><span class="kv-val">${prob.toFixed(4)}</span></div>
+    <div class="kv-row"><span class="kv-key">Threshold</span><span class="kv-val">${data.threshold}</span></div>
+    <div class="kv-row"><span class="kv-key">Model</span><span class="kv-val">${data.model_name || 'improved_xgboost'}</span></div>
+    <div class="kv-row"><span class="kv-key">Version</span><span class="kv-val">${data.model_version || '1.0'}</span></div>
+  `;
+}
+
+function resetForm() {
+  document.getElementById('predict-result').style.display = 'none';
+  document.getElementById('predict-placeholder').style.display = 'block';
+}
+
+function setQ(q) {
+  document.getElementById('chat-input').value = q;
+  document.getElementById('chat-input').focus();
+}
+
+async function sendQuestion() {
+  const q = document.getElementById('chat-input').value.trim();
+  if (!q) return;
+
+  const product = document.getElementById('filter-product').value;
+  const company = document.getElementById('filter-company').value;
+
+  appendMsg('user', 'YOU', q);
+  document.getElementById('chat-input').value = '';
+
+  const loadingId = 'loading-' + Date.now();
+  appendLoadingMsg(loadingId);
+
+  const payload = { question: q };
+  if (product) payload.product = product;
+  if (company) payload.company = company;
+
+  try {
+    const res = await fetch(getBaseUrl() + '/ask-complaints', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    removeMsg(loadingId);
+    appendRAGMsg(data);
+  } catch(e) {
+    removeMsg(loadingId);
+    appendMsg('bot', 'AI', 'Error connecting to API: ' + e.message);
+  }
+}
+
+function appendMsg(type, name, text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-' + type;
+  div.innerHTML = `
+    <div class="msg-avatar">${name === 'YOU' ? 'U' : 'AI'}</div>
+    <div class="msg-content">
+      <div class="msg-name">${name.toLowerCase()}</div>
+      <div class="msg-text">${text}</div>
+    </div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendLoadingMsg(id) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-bot';
+  div.id = id;
+  div.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-content">
+      <div class="msg-name">complaint analyst · retrieving...</div>
+      <div class="msg-text"><div class="loading"><span></span><span></span><span></span></div></div>
+    </div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeMsg(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function appendRAGMsg(data) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-bot';
+
+  const evidenceTags = (data.evidence_ids || []).map(id =>
+    `<span class="evidence-tag">#${id}</span>`
+  ).join('');
+
+  div.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-content">
+      <div class="msg-name">complaint analyst · ${data.model_used || 'gemini'} · ${Math.round(data.latency_ms || 0)}ms</div>
+      <div class="msg-text">${data.answer || 'No answer generated.'}</div>
+      ${evidenceTags ? `<div class="evidence-tags">${evidenceTags}</div>` : ''}
+      ${data.evidence_sufficiency ? `<div class="sufficiency-note">${data.evidence_sufficiency}</div>` : ''}
+    </div>
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function runCustomerIntel() {
+  const payload = {
+    age: parseInt(document.getElementById('ci-age').value),
+    job: document.getElementById('ci-job').value,
+    marital: 'married',
+    education: document.getElementById('ci-education').value,
+    default: 'no',
+    balance: parseInt(document.getElementById('ci-balance').value),
+    housing: 'yes',
+    loan: 'no',
+    contact: 'cellular',
+    day: 15,
+    month: 'may',
+    duration: 200,
+    campaign: 2,
+    pdays: -1,
+    previous: 0,
+    poutcome: 'unknown',
+  };
+
+  const product = document.getElementById('ci-product').value;
+  const issue = document.getElementById('ci-issue').value;
+  if (product) payload.product = product;
+  if (issue) payload.issue = issue;
+
+  document.getElementById('ci-placeholder').style.display = 'none';
+  document.getElementById('ci-result').style.display = 'none';
+  document.getElementById('ci-loading').style.display = 'block';
+
+  try {
+    const res = await fetch(getBaseUrl() + '/customer-intel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    showCIResult(data);
+  } catch(e) {
+    document.getElementById('ci-loading').style.display = 'none';
+    document.getElementById('ci-placeholder').style.display = 'block';
+    alert('Error: ' + e.message);
+  }
+}
+
+function showCIResult(data) {
+  document.getElementById('ci-loading').style.display = 'none';
+  document.getElementById('ci-result').style.display = 'block';
+
+  const band = data.conversion_band || 'LOW';
+  const prob = data.probability || 0;
+  const pct = Math.round(prob * 100);
+
+  const colors = { HIGH: 'var(--green)', MEDIUM: 'var(--amber)', LOW: 'var(--red)' };
+  const badges = { HIGH: 'badge-green', MEDIUM: 'badge-amber', LOW: 'badge-red' };
+
+  document.getElementById('ci-band').className = 'result-band band-' + band;
+  document.getElementById('ci-band').innerHTML = `
+    <div>
+      <div class="band-label">${band} CONVERSION</div>
+      <div class="band-sub">${pct}% subscription probability</div>
+    </div>
+  `;
+
+  const badge = document.getElementById('ci-badge');
+  badge.textContent = band;
+  badge.className = 'badge ' + badges[band];
+
+  document.getElementById('ci-prob-pct').textContent = pct + '%';
+  const fill = document.getElementById('ci-prob-fill');
+  fill.style.background = colors[band];
+  fill.style.width = '0%';
+  setTimeout(() => { fill.style.width = pct + '%'; }, 50);
+
+  const themes = data.complaint_themes || [];
+  document.getElementById('ci-themes').innerHTML = themes.length
+    ? themes.map(t => `<div style="padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);">• ${t}</div>`).join('')
+    : '<div style="font-size:12px;color:var(--text3);">No specific themes for this segment</div>';
+
+  const evidence = data.evidence_ids || [];
+  document.getElementById('ci-evidence').innerHTML = evidence.map(id =>
+    `<span class="evidence-tag">#${id}</span>`
+  ).join('');
+
+  document.getElementById('ci-answer').textContent = data.evidence_sufficiency || '';
+}
+
+async function testHealth() {
+  const el = document.getElementById('health-result');
+  el.textContent = 'testing...';
+  el.style.color = 'var(--text3)';
+  try {
+    const res = await fetch(getBaseUrl() + '/health');
+    const data = await res.json();
+    el.textContent = `✓ ${data.status} · ${data.model_name} v${data.model_version}`;
+    el.style.color = 'var(--green)';
+  } catch(e) {
+    el.textContent = '✗ ' + e.message;
+    el.style.color = 'var(--red)';
+  }
+}
+</script>
+</body>
+</html>
