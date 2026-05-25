@@ -420,7 +420,7 @@ elif page == "Complaint Intel":
                     "question": question,
                     "result": result
                 })
-
+                st.rerun()
         # Chat history
         history = st.session_state.get("chat_history", [])
         if not history:
@@ -493,7 +493,7 @@ elif page == "Customer Intel":
             with st.spinner("Running ML + RAG analysis..."):
                 result = api_customer_intel(payload)
             st.session_state["ci_result"] = result
-
+            st.rerun()
     with col2:
         st.subheader("Analysis Result")
         result = st.session_state.get("ci_result")
