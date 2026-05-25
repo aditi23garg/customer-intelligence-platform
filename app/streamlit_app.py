@@ -369,95 +369,6 @@ elif page == "ML Predictor":
             </div>""", unsafe_allow_html=True)
 
 
-# ── Page: Complaint Intel ─────────────────────────────────────────────────────
-elif page == "Complaint Intel":
-    st.title("Complaint Intelligence")
-    st.caption("POST /ask-complaints · FAISS + Gemini · grounded answers")
-
-    col1, col2 = st.columns([2, 1])
-
-    with col2:
-        st.subheader("Filters")
-        filter_product = st.text_input("Product", placeholder="e.g. Credit card")
-        filter_company = st.text_input("Company", placeholder="e.g. TRANSUNION")
-
-        st.subheader("Quick Questions")
-        quick_qs = [
-            "What are common credit reporting complaints?",
-            "How do companies respond to mortgage complaints?",
-            "What problems exist with debt collection?",
-            "What are student loan servicing issues?",
-        ]
-        for q in quick_qs:
-            if st.button(q[:45] + "...", use_container_width=True):
-                st.session_state["prefill_q"] = q
-
-    with col1:
-        st.subheader("Ask a Question")
-
-        prefill = st.session_state.get("prefill_q", "")
-        question = st.text_input(
-            "Question",
-            value=prefill,
-            placeholder="What are the most common complaints about credit reporting?",
-            label_visibility="collapsed"
-        )
-        if prefill:
-            st.session_state["prefill_q"] = ""
-
-        if st.button("Send →", use_container_width=False):
-            if question.strip():
-                payload = {"question": question}
-                if filter_product: payload["product"] = filter_product
-                if filter_company: payload["company"] = filter_company
-
-                with st.spinner("Retrieving relevant complaints..."):
-                    result = api_ask(payload)
-
-                if "chat_history" not in st.session_state:
-                    st.session_state["chat_history"] = []
-                st.session_state["chat_history"].append({
-                    "question": question,
-                    "result": result
-                })
-                st.rerun()
-        # Chat history
-        history = st.session_state.get("chat_history", [])
-        if not history:
-            st.markdown("""<div style="text-align:center;padding:40px;color:#4a5468;">
-                Ask a question about customer complaints
-            </div>""", unsafe_allow_html=True)
-        else:
-            for item in reversed(history):
-                st.markdown(f'<div class="chat-user">You: {item["question"]}</div>', unsafe_allow_html=True)
-                r = item["result"]
-                if "error" in r:
-                    st.error(r["error"])
-                else:
-                    answer = r.get("answer", "No answer.")
-                    evidence_ids = r.get("evidence_ids", [])
-                    sufficiency  = r.get("evidence_sufficiency", "")
-                    latency      = r.get("latency_ms", 0)
-                    model_used   = r.get("model_used", "gemini")
-
-                    ids_str = " ".join([f"#{i}" for i in evidence_ids])
-                    st.markdown(f"""<div class="chat-bot">
-                        <div style="font-size:11px;color:#4a5468;font-family:'DM Mono',monospace;margin-bottom:6px;">
-                            {model_used} · {round(latency)}ms
-                        </div>
-                        {answer}
-                        <div style="margin-top:8px;font-size:11px;color:#4a5468;font-family:'DM Mono',monospace;">
-                            Evidence: {ids_str}
-                        </div>
-                        <div class="sufficiency">{sufficiency}</div>
-                    </div>""", unsafe_allow_html=True)
-
-        if history and st.button("Clear History"):
-            st.session_state["chat_history"] = []
-            st.rerun()
-
-
-# ── Page: Complaint Intel ─────────────────────────────────────────────────────
 elif page == "Complaint Intel":
     st.title("Complaint Intelligence")
     st.caption("POST /ask-complaints · FAISS + Gemini · grounded answers")
@@ -478,9 +389,8 @@ elif page == "Complaint Intel":
         ]
         for q in quick_qs:
             if st.button(q[:45] + "...", use_container_width=True, key=q):
-                st.session_state["pending_question"] = q
-                st.session_state["pending_product"]  = filter_product
-                st.session_state["pending_company"]  = filter_company
+                # Directly trigger API call — no form needed
+                st.session_state["direct_question"] = q
 
     with col1:
         st.subheader("Ask a Question")
@@ -491,24 +401,23 @@ elif page == "Complaint Intel":
                 placeholder="What are the most common complaints about credit reporting?",
                 label_visibility="collapsed"
             )
-            submitted = st.form_submit_button("Send →", use_container_width=False)
+            submitted = st.form_submit_button("Send →")
 
+        # Handle form submission
         if submitted and question.strip():
-            st.session_state["pending_question"] = question
-            st.session_state["pending_product"]  = filter_product
-            st.session_state["pending_company"]  = filter_company
+            st.session_state["direct_question"] = question
 
-        # Process pending question
-        if "pending_question" in st.session_state and st.session_state["pending_question"]:
-            q        = st.session_state.pop("pending_question")
-            prod     = st.session_state.pop("pending_product", "")
-            comp     = st.session_state.pop("pending_company", "")
+        # Handle any question (from form OR quick buttons)
+        if "direct_question" in st.session_state:
+            q = st.session_state.pop("direct_question")
 
             payload = {"question": q}
-            if prod: payload["product"] = prod
-            if comp: payload["company"] = comp
+            fp = st.session_state.get("fp", "")
+            fc = st.session_state.get("fc", "")
+            if fp: payload["product"] = fp
+            if fc: payload["company"] = fc
 
-            with st.spinner(f"Retrieving complaints for: {q[:50]}..."):
+            with st.spinner(f"Retrieving complaints for: {q[:60]}..."):
                 result = api_ask(payload)
 
             if "chat_history" not in st.session_state:
@@ -526,12 +435,15 @@ elif page == "Complaint Intel":
             </div>""", unsafe_allow_html=True)
         else:
             for item in history:
-                st.markdown(f'<div class="chat-user">You: {item["question"]}</div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="chat-user">You: {item["question"]}</div>',
+                    unsafe_allow_html=True
+                )
                 r = item["result"]
                 if "error" in r:
                     st.error(r["error"])
                 else:
-                    answer      = r.get("answer", "No answer.")
+                    answer       = r.get("answer", "No answer.")
                     evidence_ids = r.get("evidence_ids", [])
                     sufficiency  = r.get("evidence_sufficiency", "")
                     latency      = r.get("latency_ms", 0)
@@ -539,17 +451,19 @@ elif page == "Complaint Intel":
                     ids_str      = " ".join([f"#{i}" for i in evidence_ids])
 
                     st.markdown(f"""<div class="chat-bot">
-                        <div style="font-size:11px;color:#4a5468;font-family:'DM Mono',monospace;margin-bottom:6px;">
+                        <div style="font-size:11px;color:#4a5468;
+                            font-family:'DM Mono',monospace;margin-bottom:6px;">
                             {model_used} · {round(latency)}ms
                         </div>
                         {answer}
-                        <div style="margin-top:8px;font-size:11px;color:#4a5468;font-family:'DM Mono',monospace;">
+                        <div style="margin-top:8px;font-size:11px;color:#4a5468;
+                            font-family:'DM Mono',monospace;">
                             Evidence: {ids_str}
                         </div>
                         <div class="sufficiency">{sufficiency}</div>
                     </div>""", unsafe_allow_html=True)
 
-        if history:
+        if st.session_state.get("chat_history"):
             if st.button("Clear History"):
                 st.session_state["chat_history"] = []
                 st.rerun()
