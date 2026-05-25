@@ -457,82 +457,99 @@ elif page == "Complaint Intel":
             st.rerun()
 
 
-# ── Page: Customer Intel ──────────────────────────────────────────────────────
-elif page == "Customer Intel":
-    st.title("Customer Intel")
-    st.caption("POST /customer-intel · ML prediction + RAG complaint themes combined")
+# ── Page: Complaint Intel ─────────────────────────────────────────────────────
+elif page == "Complaint Intel":
+    st.title("Complaint Intelligence")
+    st.caption("POST /ask-complaints · FAISS + Gemini · grounded answers")
 
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([2, 1])
+
+    with col2:
+        st.subheader("Filters")
+        filter_product = st.text_input("Product", placeholder="e.g. Credit card", key="fp")
+        filter_company = st.text_input("Company", placeholder="e.g. TRANSUNION", key="fc")
+
+        st.subheader("Quick Questions")
+        quick_qs = [
+            "What are common credit reporting complaints?",
+            "How do companies respond to mortgage complaints?",
+            "What problems exist with debt collection?",
+            "What are student loan servicing issues?",
+        ]
+        for q in quick_qs:
+            if st.button(q[:45] + "...", use_container_width=True, key=q):
+                st.session_state["pending_question"] = q
+                st.session_state["pending_product"]  = filter_product
+                st.session_state["pending_company"]  = filter_company
 
     with col1:
-        st.subheader("Customer Profile")
-        c1, c2 = st.columns(2)
-        with c1:
-            ci_age     = st.number_input("Age", min_value=18, max_value=95, value=42, key="ci_age")
-            ci_balance = st.number_input("Balance (€)", value=2000, key="ci_bal")
-        with c2:
-            ci_job     = st.selectbox("Job", ["management","technician","blue-collar","admin.","services","retired"], key="ci_job")
-            ci_edu     = st.selectbox("Education", ["tertiary","secondary","primary"], key="ci_edu")
+        st.subheader("Ask a Question")
 
-        st.markdown("**Complaint Segment Filter**")
-        ci_product = st.text_input("Product", placeholder="e.g. Credit card", key="ci_prod")
-        ci_issue   = st.text_input("Issue", placeholder="e.g. Billing dispute", key="ci_issue")
+        with st.form("complaint_form", clear_on_submit=True):
+            question = st.text_input(
+                "Question",
+                placeholder="What are the most common complaints about credit reporting?",
+                label_visibility="collapsed"
+            )
+            submitted = st.form_submit_button("Send →", use_container_width=False)
 
-        if st.button("▶ Analyze Customer", use_container_width=True):
-            payload = {
-                "age": int(ci_age), "job": ci_job, "marital": "married",
-                "education": ci_edu, "default": "no",
-                "balance": int(ci_balance), "housing": "yes",
-                "loan": "no", "contact": "cellular", "day": 15,
-                "month": "may", "duration": 200, "campaign": 2,
-                "pdays": -1, "previous": 0, "poutcome": "unknown"
-            }
-            if ci_product: payload["product"] = ci_product
-            if ci_issue:   payload["issue"]   = ci_issue
+        if submitted and question.strip():
+            st.session_state["pending_question"] = question
+            st.session_state["pending_product"]  = filter_product
+            st.session_state["pending_company"]  = filter_company
 
-            with st.spinner("Running ML + RAG analysis..."):
-                result = api_customer_intel(payload)
-            st.session_state["ci_result"] = result
-            st.rerun()
-    with col2:
-        st.subheader("Analysis Result")
-        result = st.session_state.get("ci_result")
+        # Process pending question
+        if "pending_question" in st.session_state and st.session_state["pending_question"]:
+            q        = st.session_state.pop("pending_question")
+            prod     = st.session_state.pop("pending_product", "")
+            comp     = st.session_state.pop("pending_company", "")
 
-        if result is None:
-            st.markdown("""<div style="text-align:center;padding:60px;color:#4a5468;">
-                Combined ML + RAG analysis will appear here
+            payload = {"question": q}
+            if prod: payload["product"] = prod
+            if comp: payload["company"] = comp
+
+            with st.spinner(f"Retrieving complaints for: {q[:50]}..."):
+                result = api_ask(payload)
+
+            if "chat_history" not in st.session_state:
+                st.session_state["chat_history"] = []
+            st.session_state["chat_history"].insert(0, {
+                "question": q,
+                "result": result
+            })
+
+        # Display chat history
+        history = st.session_state.get("chat_history", [])
+        if not history:
+            st.markdown("""<div style="text-align:center;padding:40px;color:#4a5468;">
+                Ask a question about customer complaints
             </div>""", unsafe_allow_html=True)
-        elif "error" in result:
-            st.error(result["error"])
         else:
-            band = result.get("conversion_band", "LOW")
-            prob = result.get("probability", 0)
-            pct  = round(prob * 100)
+            for item in history:
+                st.markdown(f'<div class="chat-user">You: {item["question"]}</div>', unsafe_allow_html=True)
+                r = item["result"]
+                if "error" in r:
+                    st.error(r["error"])
+                else:
+                    answer      = r.get("answer", "No answer.")
+                    evidence_ids = r.get("evidence_ids", [])
+                    sufficiency  = r.get("evidence_sufficiency", "")
+                    latency      = r.get("latency_ms", 0)
+                    model_used   = r.get("model_used", "gemini")
+                    ids_str      = " ".join([f"#{i}" for i in evidence_ids])
 
-            css_map = {"HIGH": "result-high", "MEDIUM": "result-medium", "LOW": "result-low"}
-            css = css_map.get(band, "result-low")
+                    st.markdown(f"""<div class="chat-bot">
+                        <div style="font-size:11px;color:#4a5468;font-family:'DM Mono',monospace;margin-bottom:6px;">
+                            {model_used} · {round(latency)}ms
+                        </div>
+                        {answer}
+                        <div style="margin-top:8px;font-size:11px;color:#4a5468;font-family:'DM Mono',monospace;">
+                            Evidence: {ids_str}
+                        </div>
+                        <div class="sufficiency">{sufficiency}</div>
+                    </div>""", unsafe_allow_html=True)
 
-            st.markdown(f'<div class="{css}">{band} CONVERSION BAND</div>', unsafe_allow_html=True)
-            st.markdown(f"**Subscription Probability: {pct}%**")
-            st.progress(prob)
-
-            st.markdown("---")
-            themes = result.get("complaint_themes", [])
-            if themes:
-                st.markdown("**Complaint Themes for Segment**")
-                for t in themes:
-                    st.markdown(f"""<div style="padding:8px 12px;background:#111318;border:1px solid #1e2330;
-                        border-radius:6px;font-size:12px;color:#8892a4;margin-bottom:6px;">• {t}</div>""",
-                        unsafe_allow_html=True)
-            else:
-                st.info("No specific complaint themes for this segment")
-
-            evidence = result.get("evidence_ids", [])
-            if evidence:
-                st.markdown("**Evidence IDs**")
-                ids_str = "  ".join([f"`#{i}`" for i in evidence])
-                st.markdown(ids_str)
-
-            sufficiency = result.get("evidence_sufficiency", "")
-            if sufficiency:
-                st.markdown(f'<div class="sufficiency">{sufficiency}</div>', unsafe_allow_html=True)
+        if history:
+            if st.button("Clear History"):
+                st.session_state["chat_history"] = []
+                st.rerun()
